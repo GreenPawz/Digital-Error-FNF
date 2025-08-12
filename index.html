@@ -16,38 +16,57 @@
       background: #111;
       display: block;
       margin: auto;
+      border: 4px solid lime;
     }
   </style>
 </head>
 <body>
   <h1>Friday Night Funkin' - Digital Error</h1>
-  <p>Placeholder Build — Sprites & Songs Coming Soon</p>
+  <p>Placeholder Build — Press arrow keys to play</p>
   <canvas id="game" width="800" height="600"></canvas>
+
+  <audio id="song" loop>
+    <source src="https://upload.wikimedia.org/wikipedia/commons/4/4e/Bach_-_Prelude_in_C_major_-_BWV_846.ogg" type="audio/ogg">
+  </audio>
 
   <script>
     let c = document.getElementById('game');
     let ctx = c.getContext('2d');
+    let song = document.getElementById('song');
+    let arrows = ["←", "↑", "↓", "→"];
+    let pressed = {};
 
-    let keys = [];
-
-    function drawText() {
-      ctx.clearRect(0,0,800,600);
+    function drawGame() {
+      ctx.clearRect(0, 0, c.width, c.height);
       ctx.fillStyle = "lime";
-      ctx.font = "40px Arial";
-      ctx.fillText("Keys pressed: " + keys.join(", "), 150, 300);
+      ctx.font = "48px Arial";
+      ctx.fillText("Digital Error", 280, 100);
+
+      ctx.font = "60px Arial";
+      arrows.forEach((arrow, i) => {
+        ctx.fillStyle = pressed[arrow] ? "red" : "white";
+        ctx.fillText(arrow, 200 + i * 120, 300);
+      });
     }
 
     window.addEventListener('keydown', e => {
-      if(!keys.includes(e.key)) keys.push(e.key);
-      drawText();
+      if(e.key === "ArrowLeft") pressed["←"] = true;
+      if(e.key === "ArrowUp") pressed["↑"] = true;
+      if(e.key === "ArrowDown") pressed["↓"] = true;
+      if(e.key === "ArrowRight") pressed["→"] = true;
+      drawGame();
+      if(song.paused) song.play();
     });
 
     window.addEventListener('keyup', e => {
-      keys = keys.filter(k => k !== e.key);
-      drawText();
+      if(e.key === "ArrowLeft") pressed["←"] = false;
+      if(e.key === "ArrowUp") pressed["↑"] = false;
+      if(e.key === "ArrowDown") pressed["↓"] = false;
+      if(e.key === "ArrowRight") pressed["→"] = false;
+      drawGame();
     });
 
-    drawText();
+    drawGame();
   </script>
 </body>
 </html>
