@@ -4,37 +4,50 @@
   <meta charset="UTF-8">
   <title>FNF - Digital Error (By GreenPawz)</title>
   <style>
-    body { background: black; color: white; text-align: center; font-family: sans-serif; }
-    canvas { background: #111; margin-top: 20px; }
+    body {
+      background: black;
+      color: white;
+      text-align: center;
+      font-family: sans-serif;
+      margin: 0;
+      overflow: hidden;
+    }
+    canvas {
+      background: #111;
+      display: block;
+      margin: auto;
+    }
   </style>
 </head>
 <body>
   <h1>Friday Night Funkin' - Digital Error</h1>
-  <p>Placeholder Build — Songs & sprites coming soon</p>
+  <p>Placeholder Build — Sprites & Songs Coming Soon</p>
   <canvas id="game" width="800" height="600"></canvas>
+
   <script>
     let c = document.getElementById('game');
     let ctx = c.getContext('2d');
-    ctx.fillStyle = "lime";
-    ctx.font = "40px Arial";
-    ctx.fillText("Press Arrow Keys!", 250, 300);
 
     let keys = [];
-    window.addEventListener('keydown', e => {
-      if(!keys.includes(e.key)) keys.push(e.key);
-      draw();
-    });
-    window.addEventListener('keyup', e => {
-      keys = keys.filter(k => k !== e.key);
-      draw();
-    });
 
-    function draw(){
+    function drawText() {
       ctx.clearRect(0,0,800,600);
       ctx.fillStyle = "lime";
       ctx.font = "40px Arial";
-      ctx.fillText("Keys: " + keys.join(", "), 200, 300);
+      ctx.fillText("Keys pressed: " + keys.join(", "), 150, 300);
     }
+
+    window.addEventListener('keydown', e => {
+      if(!keys.includes(e.key)) keys.push(e.key);
+      drawText();
+    });
+
+    window.addEventListener('keyup', e => {
+      keys = keys.filter(k => k !== e.key);
+      drawText();
+    });
+
+    drawText();
   </script>
 </body>
 </html>
