@@ -7,7 +7,6 @@
     body {
       background: black;
       color: white;
-      text-align: center;
       font-family: sans-serif;
       margin: 0;
       overflow: hidden;
@@ -18,55 +17,112 @@
       margin: auto;
       border: 4px solid lime;
     }
+    h1, p {
+      text-align: center;
+    }
   </style>
 </head>
 <body>
   <h1>Friday Night Funkin' - Digital Error</h1>
-  <p>Placeholder Build — Press arrow keys to play</p>
+  <p>Placeholder Build — Press Arrow Keys or W A S D</p>
   <canvas id="game" width="800" height="600"></canvas>
 
   <audio id="song" loop>
-    <source src="https://upload.wikimedia.org/wikipedia/commons/4/4e/Bach_-_Prelude_in_C_major_-_BWV_846.ogg" type="audio/ogg">
+    <source src="https://files.catbox.moe/ut3ux6.mp3" type="audio/mpeg">
   </audio>
 
   <script>
     let c = document.getElementById('game');
     let ctx = c.getContext('2d');
     let song = document.getElementById('song');
-    let arrows = ["←", "↑", "↓", "→"];
+
+    let lanes = ["left", "up", "down", "right"];
+    let laneKeys = {
+      left: ["ArrowLeft", "a", "A"],
+      up: ["ArrowUp", "w", "W"],
+      down: ["ArrowDown", "s", "S"],
+      right: ["ArrowRight", "d", "D"]
+    };
+
+    let notes = [];
     let pressed = {};
+    let botMode = true; // Auto-play
 
-    function drawGame() {
-      ctx.clearRect(0, 0, c.width, c.height);
-      ctx.fillStyle = "lime";
-      ctx.font = "48px Arial";
-      ctx.fillText("Digital Error", 280, 100);
+    function spawnNote(lane) {
+      notes.push({ lane: lane, y: -50 });
+    }
 
+    function drawStaticArrows() {
       ctx.font = "60px Arial";
-      arrows.forEach((arrow, i) => {
-        ctx.fillStyle = pressed[arrow] ? "red" : "white";
-        ctx.fillText(arrow, 200 + i * 120, 300);
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      lanes.forEach((lane, i) => {
+        ctx.fillStyle = pressed[lane] ? "red" : "white";
+        ctx.fillText(
+          lane === "left" ? "←" : lane === "up" ? "↑" : lane === "down" ? "↓" : "→",
+          200 + i * 120,
+          500
+        );
       });
     }
 
+    function drawNotes() {
+      ctx.fillStyle = "lime";
+      ctx.font = "60px Arial";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      notes.forEach(note => {
+        let x = 200 + lanes.indexOf(note.lane) * 120;
+        ctx.fillText(
+          note.lane === "left" ? "←" : note.lane === "up" ? "↑" : note.lane === "down" ? "↓" : "→",
+          x,
+          note.y
+        );
+      });
+    }
+
+    function updateNotes() {
+      notes.forEach(note => note.y += 4);
+      notes = notes.filter(note => note.y < 550);
+    }
+
+    function gameLoop() {
+      ctx.clearRect(0, 0, c.width, c.height);
+      drawStaticArrows();
+      drawNotes();
+      updateNotes();
+
+      if (botMode) {
+        notes.forEach(note => {
+          if (note.y > 460 && note.y < 520) {
+            pressed[note.lane] = true;
+          } else {
+            pressed[note.lane] = false;
+          }
+        });
+      }
+      requestAnimationFrame(gameLoop);
+    }
+
     window.addEventListener('keydown', e => {
-      if(e.key === "ArrowLeft") pressed["←"] = true;
-      if(e.key === "ArrowUp") pressed["↑"] = true;
-      if(e.key === "ArrowDown") pressed["↓"] = true;
-      if(e.key === "ArrowRight") pressed["→"] = true;
-      drawGame();
-      if(song.paused) song.play();
+      for (let lane in laneKeys) {
+        if (laneKeys[lane].includes(e.key)) pressed[lane] = true;
+      }
+      if (song.paused) song.play();
     });
 
     window.addEventListener('keyup', e => {
-      if(e.key === "ArrowLeft") pressed["←"] = false;
-      if(e.key === "ArrowUp") pressed["↑"] = false;
-      if(e.key === "ArrowDown") pressed["↓"] = false;
-      if(e.key === "ArrowRight") pressed["→"] = false;
-      drawGame();
+      for (let lane in laneKeys) {
+        if (laneKeys[lane].includes(e.key)) pressed[lane] = false;
+      }
     });
 
-    drawGame();
+    setInterval(() => {
+      let lane = lanes[Math.floor(Math.random() * lanes.length)];
+      spawnNote(lane);
+    }, 700);
+
+    gameLoop();
   </script>
 </body>
 </html>
